@@ -377,17 +377,17 @@ class ColaProcessor(DataProcessor):
 class CustomProcessor(DataProcessor):
   """Processor for the CoLA data set (GLUE version)."""
 
-  def get_train_examples(self, data_dir,custom_labels):
+  def get_train_examples(self, data_dir):
     """See base class."""
     return self._create_examples(
         self._read_tsv(os.path.join(data_dir, "train.tsv")), "train")
 
-  def get_dev_examples(self, data_dir,custom_labels):
+  def get_dev_examples(self, data_dir):
     """See base class."""
     return self._create_examples(
         self._read_tsv(os.path.join(data_dir, "dev.tsv")), "dev")
 
-  def get_test_examples(self, data_dir,custom_labels):
+  def get_test_examples(self, data_dir):
     """See base class."""
     return self._create_examples(
         self._read_tsv(os.path.join(data_dir, "test.tsv")), "test")
@@ -401,6 +401,7 @@ class CustomProcessor(DataProcessor):
     examples = []
     for (i, line) in enumerate(lines):
       # Only the test set has a header
+      # print(line)
       if set_type == "test" and i == 0:
         continue
       guid = "%s-%s" % (set_type, i)
@@ -408,7 +409,7 @@ class CustomProcessor(DataProcessor):
         text_a = tokenization.convert_to_unicode(line[1])
         label = "0"
       else:
-        text_a = tokenization.convert_to_unicode(line[3])
+        text_a = tokenization.convert_to_unicode(line[2])
         label = tokenization.convert_to_unicode(line[1])
       examples.append(
           InputExample(guid=guid, text_a=text_a, text_b=None, label=label))
