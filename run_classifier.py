@@ -374,7 +374,7 @@ class ColaProcessor(DataProcessor):
     return examples
 
 
-class customProcessor(DataProcessor):
+class CustomProcessor(DataProcessor):
   """Processor for the CoLA data set (GLUE version)."""
 
   def get_train_examples(self, data_dir,custom_labels):
@@ -837,6 +837,7 @@ def main(_):
       "mnli": MnliProcessor,
       "mrpc": MrpcProcessor,
       "xnli": XnliProcessor,
+      "cust": CustomProcessor,
   }
 
   tokenization.validate_case_matches_checkpoint(FLAGS.do_lower_case,
