@@ -28,6 +28,8 @@ import six
 import tensorflow as tf
 
 
+import tf.contrib.layers.layer_norm as tf_layer_norm
+
 class BertConfig(object):
   """Configuration for `BertModel`."""
 
@@ -163,10 +165,10 @@ class BertModel(object):
     seq_length = input_shape[1]
 
     if input_mask is None:
-      input_mask = tf.ones(shape=[batch_size, seq_length], dtype=tf.int32)
+      input_mask = tf.ones(shape=[batch_size, seq_length], dtype=tf.int64)
 
     if token_type_ids is None:
-      token_type_ids = tf.zeros(shape=[batch_size, seq_length], dtype=tf.int32)
+      token_type_ids = tf.zeros(shape=[batch_size, seq_length], dtype=tf.int64)
 
     with tf.variable_scope(scope, default_name="bert"):
       with tf.variable_scope("embeddings"):
@@ -361,7 +363,7 @@ def dropout(input_tensor, dropout_prob):
 
 def layer_norm(input_tensor, name=None):
   """Run layer normalization on the last dimension of the tensor."""
-  return tf.contrib.layers.layer_norm(
+  return tf_layer_norm(
       inputs=input_tensor, begin_norm_axis=-1, begin_params_axis=-1, scope=name)
 
 

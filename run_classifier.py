@@ -415,6 +415,18 @@ class CustomProcessor(DataProcessor):
           InputExample(guid=guid, text_a=text_a, text_b=None, label=label))
     return examples
 
+  def _create_example(self, line, set_type):
+    guid = "%s-%s" % (set_type, tokenization.convert_to_unicode(line[0]))
+    print(line[1])
+    text_a = tokenization.convert_to_unicode(line[1][1])
+    if set_type == "test":
+      label = "1"
+    else:
+      label = tokenization.convert_to_unicode(line[-1])
+    single_example = InputExample(guid=guid, text_a=text_a, label=label)
+    return single_example
+
+
 
 
 
@@ -602,6 +614,27 @@ def file_based_input_fn_builder(input_file, seq_length, is_training,
     return d
 
   return input_fn
+
+
+
+
+def from_record_to_tf_example(ex_index, example, label_list, max_seq_length, tokenizer):
+  feature = convert_single_example(ex_index, example, label_list,
+                                   max_seq_length, tokenizer)
+
+  def create_int_feature(values):
+    f = tf.train.Feature(int64_list=tf.train.Int64List(value=list(values)))
+    return f
+
+  features = collections.OrderedDict()
+  features["input_ids"] = create_int_feature(feature.input_ids)
+  features["input_mask"] = create_int_feature(feature.input_mask)
+  features["segment_ids"] = create_int_feature(feature.segment_ids)
+  features["label_ids"] = create_int_feature([feature.label_id])
+  features["is_real_example"] = create_int_feature(
+    [int(feature.is_real_example)])
+  tf_example = tf.train.Example(features=tf.train.Features(feature=features))
+  return tf_example
 
 
 def _truncate_seq_pair(tokens_a, tokens_b, max_length):
