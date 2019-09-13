@@ -28,7 +28,7 @@ import six
 import tensorflow as tf
 
 
-import tf.contrib.layers.layer_norm as tf_layer_norm
+import tensorflow.contrib.layers.layer_norm as tf_layer_norm
 
 class BertConfig(object):
   """Configuration for `BertModel`."""
