@@ -40,8 +40,8 @@ def create_optimizer(loss, init_lr, num_train_steps, num_warmup_steps, use_tpu):
   # Implements linear warmup. I.e., if global_step < num_warmup_steps, the
   # learning rate will be `global_step/num_warmup_steps * init_lr`.
   if num_warmup_steps:
-    global_steps_int = tf.cast(global_step, tf.int32)
-    warmup_steps_int = tf.constant(num_warmup_steps, dtype=tf.int32)
+    global_steps_int = tf.cast(global_step, tf.int64)
+    warmup_steps_int = tf.constant(num_warmup_steps, dtype=tf.int64)
 
     global_steps_float = tf.cast(global_steps_int, tf.float32)
     warmup_steps_float = tf.cast(warmup_steps_int, tf.float32)
@@ -84,7 +84,7 @@ def create_optimizer(loss, init_lr, num_train_steps, num_warmup_steps, use_tpu):
   return train_op
 
 
-class AdamWeightDecayOptimizer(tf.train.Optimizer):
+class AdamWeightDecayOptimizer(tf.compat.v1.train.Optimizer):
   """A basic Adam optimizer that includes "correct" L2 weight decay."""
 
   def __init__(self,
