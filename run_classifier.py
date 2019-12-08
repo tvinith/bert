@@ -197,7 +197,7 @@ class DataProcessor(object):
   def _read_tsv(cls, input_file, quotechar=None):
     """Reads a tab separated value file."""
     with tf.gfile.Open(input_file, "r") as f:
-      reader = csv.reader(f, delimiter="\t", quotechar=quotechar)
+      reader = csv.reader((x.replace('\0', '') for x in f), delimiter="\t", quotechar=quotechar)
       lines = []
       for line in reader:
         lines.append(line)
@@ -375,7 +375,7 @@ class ColaProcessor(DataProcessor):
 
 
 class CustomProcessor(DataProcessor):
-  """Processor for the CoLA data set (GLUE version)."""
+  """Processor for the Custom dataset based on COla."""
 
   def get_train_examples(self, data_dir):
     """See base class."""
@@ -401,7 +401,7 @@ class CustomProcessor(DataProcessor):
     examples = []
     for (i, line) in enumerate(lines):
       # Only the test set has a header
-      # print(line)
+      print(line)
       if set_type == "test" and i == 0:
         continue
       guid = "%s-%s" % (set_type, i)
@@ -634,7 +634,9 @@ def from_record_to_tf_example(ex_index, example, label_list, max_seq_length, tok
   features["is_real_example"] = create_int_feature(
     [int(feature.is_real_example)])
   tf_example = tf.train.Example(features=tf.train.Features(feature=features))
+
   return tf_example
+
 
 
 def _truncate_seq_pair(tokens_a, tokens_b, max_length):
