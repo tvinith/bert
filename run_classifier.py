@@ -332,6 +332,17 @@ class MrpcProcessor(DataProcessor):
           InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
     return examples
 
+  def _create_example(self,line, set_type):
+    guid = "%s-%s" % (set_type, tokenization.convert_to_unicode(line[0]))
+    text_a = tokenization.convert_to_unicode(line[1])
+    text_b = tokenization.convert_to_unicode(line[2])
+    if set_type == "test":
+      label = "1"
+    else:
+      label = tokenization.convert_to_unicode(line[0])
+    single_example = InputExample(guid=guid, text_a=text_a,text_b=text_b, label=label)
+    return single_example
+
 
 class ColaProcessor(DataProcessor):
   """Processor for the CoLA data set (GLUE version)."""
@@ -637,6 +648,33 @@ def from_record_to_tf_example(ex_index, example, label_list, max_seq_length, tok
 
   return tf_example
 
+
+def convert_examples_to_features_(
+    examples, label_list, max_seq_length, tokenizer):
+
+  all_examples=[]
+  for (ex_index, example) in enumerate(examples):
+    if ex_index % 10000 == 0:
+      tf.logging.info("Writing example %d of %d" % (ex_index, len(examples)))
+
+    feature = convert_single_example(ex_index, example, label_list,
+                                     max_seq_length, tokenizer)
+
+    def create_int_feature(values):
+      f = tf.train.Feature(int64_list=tf.train.Int64List(value=list(values)))
+      return f
+
+    features = collections.OrderedDict()
+    features["input_ids"] = create_int_feature(feature.input_ids)
+    features["input_mask"] = create_int_feature(feature.input_mask)
+    features["segment_ids"] = create_int_feature(feature.segment_ids)
+    features["label_ids"] = create_int_feature([feature.label_id])
+    features["is_real_example"] = create_int_feature(
+        [int(feature.is_real_example)])
+
+    tf_example = tf.train.Example(features=tf.train.Features(feature=features))
+    all_examples.append(tf_example)
+  return all_examples
 
 
 def _truncate_seq_pair(tokens_a, tokens_b, max_length):
